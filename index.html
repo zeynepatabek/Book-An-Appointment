@@ -2,45 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Appointment Form | pbc-webdev</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Appointment Scheduler</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container" id="booking-container">
-    <h1>Book Your Appointment</h1>
+  <div class="container">
+    <h1>Appointment Scheduler</h1>
 
+    <!-- Parent & Child Info Form -->
     <form id="info-form">
       <div class="form-group">
         <label for="parent-name">Parent's Name:</label>
         <input type="text" id="parent-name" name="parent-name" required />
       </div>
+
       <div class="form-group">
         <label for="parent-email">Parent's Email:</label>
         <input type="email" id="parent-email" name="parent-email" required />
       </div>
+
       <div class="form-group">
         <label for="child-name">Child's Name:</label>
         <input type="text" id="child-name" name="child-name" required />
       </div>
+
       <div class="form-group">
         <label for="bed-time">Child's Typical Bed Time:</label>
         <input type="time" id="bed-time" name="bed-time" required />
       </div>
+
       <div class="form-group">
         <label for="nap-time">Child's Typical Nap Time:</label>
         <input type="time" id="nap-time" name="nap-time" required />
       </div>
-      <button type="submit">Next: Select Appointment Dates</button>
+
+      <button type="submit">Proceed to Schedule Visits</button>
     </form>
 
-    <div id="calendar-section" style="display:none;">
-      <p>Please select two dates exactly 1 week apart. The appointment time will be scheduled 2 hours before your child’s nap time.</p>
-      <div id="calendar"></div>
-      <div id="selected-dates" style="margin-top:10px;"></div>
-    </div>
+    <!-- Scheduling Section (Hidden Initially) -->
+    <section id="calendar-section" style="display:none;">
+      <h2>Select Two Appointment Dates</h2>
+      <p>
+        Please select two visit dates exactly one week apart (±1 day).
+      </p>
+      <button id="clear-selection">Clear Selection</button>
 
-    <div id="message"></div>
+      <div id="calendar"></div>
+
+      <div id="selected-dates"></div>
+      <div id="message"></div>
+    </section>
   </div>
 
   <script src="script.js"></script>
