@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Appointment Scheduler</title>
+  <title>Appointment Form | pbc-webdev</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Child Sleep Study Registration</h1>
+  <div class="container" id="booking-container">
+    <h1>Book Your Appointment</h1>
 
-    <!-- Step 1: Parent & Child Info Form -->
     <form id="info-form">
       <div class="form-group">
         <label for="parent-name">Parent's Name:</label>
@@ -25,41 +24,21 @@
         <input type="text" id="child-name" name="child-name" required />
       </div>
       <div class="form-group">
-        <label for="bedtime">Child's Typical Bedtime (HH:MM):</label>
-        <input type="time" id="bedtime" name="bedtime" required />
+        <label for="bed-time">Child's Typical Bed Time:</label>
+        <input type="time" id="bed-time" name="bed-time" required />
       </div>
       <div class="form-group">
-        <label for="naptime">Child's Typical Nap Time (HH:MM):</label>
-        <input type="time" id="naptime" name="naptime" required />
+        <label for="nap-time">Child's Typical Nap Time:</label>
+        <input type="time" id="nap-time" name="nap-time" required />
       </div>
-      <input type="submit" value="Continue to Scheduling" />
+      <button type="submit">Next: Select Appointment Dates</button>
     </form>
 
-    <!-- Step 2: Scheduling -->
-    <div id="scheduling-section" style="display: none;">
-      <p><strong>Scheduling Overview:</strong> Please select two visit dates that are exactly one week apart. The visit time will automatically be scheduled 2 hours before your child’s nap time.</p>
-
-      <div class="form-group">
-        <label>Select a Date:</label>
-        <div id="calendar"></div>
-        <input type="hidden" id="visit1" name="visit1" required />
-        <input type="hidden" id="visit2" name="visit2" required />
-        <button type="button" id="clear-selection">Clear Selection</button>
-        <div id="visit-messages" style="margin-top:10px; font-weight: bold;"></div>
-      </div>
-
-      <input type="submit" form="appointment-form" value="Submit Appointments" />
+    <div id="calendar-section" style="display:none;">
+      <p>Please select two dates exactly 1 week apart. The appointment time will be scheduled 2 hours before your child’s nap time.</p>
+      <div id="calendar"></div>
+      <div id="selected-dates" style="margin-top:10px;"></div>
     </div>
-
-    <!-- Hidden appointment form for final submission -->
-    <form id="appointment-form" style="display: none;">
-      <input type="hidden" id="final-name" name="name" />
-      <input type="hidden" id="final-email" name="email" />
-      <input type="hidden" id="final-visit1" name="visit1" />
-      <input type="hidden" id="final-visit2" name="visit2" />
-      <input type="hidden" id="final-time1" name="time1" />
-      <input type="hidden" id="final-time2" name="time2" />
-    </form>
 
     <div id="message"></div>
   </div>
