@@ -7,14 +7,22 @@ document.addEventListener("DOMContentLoaded", function () {
   const clearSelectionBtn = document.getElementById("clear-selection");
 
   let selectedDates = [];
-  let napTime = ""; 
+  let napTime = "";
 
   infoForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
     napTime = document.getElementById("nap-time").value;
-    document.getElementById("info-form").style.display = "none";
+    if (!napTime) {
+      alert("Please enter the child's typical nap time.");
+      return;
+    }
+
+    console.log("Info form submitted, proceeding to calendar...");
+
+    infoForm.style.display = "none";
     calendarSection.style.display = "block";
+
     renderCalendar();
   });
 
@@ -72,3 +80,61 @@ document.addEventListener("DOMContentLoaded", function () {
             displayAppointmentInfo();
           } else {
             alert("Second visit must be within ±1 week of the first visit.");
+          }
+        }
+      });
+
+      row.appendChild(cell);
+      if ((firstDay.getDay() + d) % 7 === 0) {
+        calendarTable.appendChild(row);
+        row = document.createElement("tr");
+      }
+    }
+    calendarTable.appendChild(row);
+
+    calendarContainer.innerHTML = `<h3>${today.toLocaleString('default', { month: 'long' })} ${year}</h3>`;
+    calendarContainer.appendChild(calendarTable);
+  }
+
+  function highlightDates() {
+    const allCells = document.querySelectorAll(".calendar-cell");
+    allCells.forEach(cell => cell.classList.remove("selected"));
+
+    selectedDates.forEach(date => {
+      const iso = date.toISOString().split('T')[0];
+      const match = [...allCells].find(c => c.dataset.date === iso);
+      if (match) match.classList.add("selected");
+    });
+  }
+
+  function displayAppointmentInfo() {
+    const parentName = document.getElementById("parent-name").value;
+    const childName = document.getElementById("child-name").value;
+
+    const visit1 = selectedDates[0] < selectedDates[1] ? selectedDates[0] : selectedDates[1];
+    const visit2 = selectedDates[0] > selectedDates[1] ? selectedDates[0] : selectedDates[1];
+
+    const napHour = parseInt(napTime.split(":")[0]);
+    const napMinute = parseInt(napTime.split(":")[1]);
+
+    let visitHour = napHour;
+    let visitMinute = napMinute - 15;
+    if (visitMinute < 0) {
+      visitMinute += 60;
+      visitHour = (visitHour + 23) % 24;
+    } else {
+      visitHour = (visitHour + 24 - 2) % 24;
+    }
+
+    const visitTime = `${visitHour.toString().padStart(2, '0')}:${visitMinute.toString().padStart(2, '0')}`;
+
+    selectedDatesDisplay.innerHTML = `
+      <p><strong>Your Visit 1 date is:</strong> ${visit1.toDateString()} at ${visitTime}</p>
+      <p><strong>Your Visit 2 date is:</strong> ${visit2.toDateString()} at ${visitTime}</p>
+    `;
+
+    messageDiv.innerHTML = `
+      <p>Thank you, ${parentName}. ${childName}'s visits are scheduled as shown above.</p>
+    `;
+  }
+});
