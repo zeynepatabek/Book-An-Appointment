@@ -1,138 +1,205 @@
+/* Body and container */
 body {
-  font-family: Tahoma, Verdana, sans-serif;
-  background-color: #8B0000;
-  padding: 20px;
-  color: #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #8B0000; /* Burgundy */
+  padding: 40px 20px;
+  color: #222;
   margin: 0;
-}
- 
-.container, form, section {
-  max-width: 700px;
-  margin: 20px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
+.container, form, section {
+  max-width: 720px;
+  width: 100%;
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  transition: box-shadow 0.3s ease;
+}
+
+.container:hover, form:hover, section:hover {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+/* Headings */
 h1, h2 {
   text-align: center;
+  font-weight: 700;
+  color: #4B0000;
+  margin-bottom: 25px;
+  letter-spacing: 1.2px;
 }
 
+/* Labels and inputs */
 label {
   display: block;
-  margin-top: 15px;
+  margin-top: 20px;
   font-weight: 600;
+  font-size: 1rem;
+  color: #4B0000;
 }
 
 input[type="text"],
 input[type="email"],
 input[type="time"] {
   width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 12px 15px;
+  margin-top: 8px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
 }
 
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="time"]:focus {
+  border-color: #8B0000;
+  outline: none;
+  box-shadow: 0 0 8px rgba(139, 0, 0, 0.5);
+}
+
+/* Buttons */
 button {
-  margin-top: 20px;
-  background-color: #4CAF50;
+  margin-top: 30px;
+  background-color: #8B0000;
   border: none;
-  padding: 12px;
+  padding: 14px;
   color: white;
-  font-size: 16px;
+  font-size: 1.15rem;
   cursor: pointer;
   width: 100%;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  border-radius: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 6px 12px rgba(139, 0, 0, 0.5);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-button:hover {
-  background-color: #45a049;
+button:hover:not(:disabled) {
+  background-color: #5a0000;
+  box-shadow: 0 8px 16px rgba(90, 0, 0, 0.7);
 }
 
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Calendar wrapper & tables */
 .calendar-wrapper {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
-  margin-top: 20px;
+  gap: 30px;
+  margin-top: 30px;
 }
 
 .calendar {
   flex: 1;
+  user-select: none;
 }
 
 .calendar-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  font-size: 1rem;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .calendar-table caption {
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-bottom: 5px;
-  text-align: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  padding: 10px 0;
+  color: #4B0000;
+  background-color: #f9f1f1;
+  border-bottom: 2px solid #8B0000;
 }
 
 .calendar-table th,
 .calendar-table td {
   width: 14.28%;
-  height: 40px;
+  height: 48px;
   text-align: center;
   vertical-align: middle;
   border: 1px solid #ddd;
   cursor: default;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-weight: 500;
   user-select: none;
-  font-weight: normal;
 }
 
 .calendar-table th {
-  background-color: #f4f4f4;
-  cursor: default;
+  background-color: #f4f0f0;
+  color: #5a0000;
+  font-weight: 700;
 }
 
+/* Date states */
 .available {
   background-color: #007BFF; /* Blue */
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  border-radius: 8px;
 }
 
 .available:hover {
   background-color: #0056b3;
+  box-shadow: 0 0 8px rgba(0, 86, 179, 0.6);
 }
 
 .light-blue {
   background-color: #66b3ff; /* Light blue */
   color: white;
   cursor: pointer;
+  border-radius: 8px;
+}
+
+.light-blue:hover {
+  background-color: #3399ff;
+  box-shadow: 0 0 8px rgba(51, 153, 255, 0.6);
 }
 
 .selected {
-  background-color: #004085; /* Darker blue for selection */
+  background-color: #004085; /* Darker blue */
   color: white;
-  font-weight: bold;
+  font-weight: 700;
   cursor: default;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 64, 133, 0.9);
 }
 
 .greyed {
-  background-color: #ccc;
-  color: #666;
+  background-color: #e0e0e0;
+  color: #999;
   cursor: not-allowed;
+  border-radius: 8px;
 }
 
+/* Selected dates & messages */
 #selected-dates p {
-  font-size: 1.1em;
-  font-weight: 600;
-  margin-top: 10px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 20px;
+  color: #4B0000;
 }
 
 #message {
   margin-top: 20px;
-  font-weight: bold;
-  font-size: 1.1em;
-  color: #333;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #4B0000;
+  min-height: 24px;
+  text-align: center;
 }
