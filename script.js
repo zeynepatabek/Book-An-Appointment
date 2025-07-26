@@ -1,243 +1,191 @@
+let parentInfo = {};
 let availableDates = [];
-let firstSelectedDate = null;
-let secondSelectedDate = null;
 
-const infoForm = document.getElementById("info-form");
-const calendarSection = document.getElementById("calendar-section");
-const confirmationSection = document.getElementById("confirmation-section");
-const calendarMonth1 = document.getElementById("calendar-month-1");
-const calendarMonth2 = document.getElementById("calendar-month-2");
-const selectedDatesDiv = document.getElementById("selected-dates");
-const messageDiv = document.getElementById("message");
-const clearBtn = document.getElementById("clear-selection");
-
-// Create and append Submit Schedule button dynamically
-const submitScheduleBtn = document.createElement("button");
-submitScheduleBtn.textContent = "Submit Schedule";
-submitScheduleBtn.style.marginTop = "20px";
-submitScheduleBtn.style.display = "none"; // hidden initially
-calendarSection.appendChild(submitScheduleBtn);
-
-infoForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  calendarSection.style.display = "block";
-  infoForm.style.display = "none";
-  confirmationSection.style.display = "none";
-
-  firstSelectedDate = null;
-  secondSelectedDate = null;
-  selectedDatesDiv.innerHTML = "";
-  messageDiv.innerHTML = "";
-  submitScheduleBtn.style.display = "none";
-  submitScheduleBtn.disabled = false;
-
-  renderCalendars();
-});
-
-clearBtn.addEventListener("click", () => {
-  firstSelectedDate = null;
-  secondSelectedDate = null;
-  selectedDatesDiv.innerHTML = "";
-  messageDiv.innerHTML = "";
-  submitScheduleBtn.style.display = "none";
-  submitScheduleBtn.disabled = false;
-  renderCalendars();
-});
-
-submitScheduleBtn.addEventListener("click", () => {
-  messageDiv.textContent = "Submitting your schedule...";
-  submitScheduleBtn.disabled = true;
-
-  setTimeout(() => {
-    calendarSection.style.display = "none";
-    confirmationSection.style.display = "block";
-  }, 5000);
-});
-
+// Fetch available dates from JSON file and initialize calendar after fetch
 fetch('available_dates.json')
   .then(response => response.json())
   .then(data => {
-    availableDates = data.dates.map(dateStr => {
-      const d = new Date(dateStr);
-      d.setHours(0, 0, 0, 0);
-      return d;
+    availableDates = data.dates.map(d => {
+      const dt = new Date(d);
+      dt.setHours(0,0,0,0);
+      return dt;
     });
+    setup();
   })
   .catch(err => {
-    console.error("Error loading available_dates.json", err);
+    alert("Failed to load available dates. Please try again later.");
+    console.error(err);
   });
 
-function renderCalendars() {
-  calendarMonth1.innerHTML = "";
-  calendarMonth2.innerHTML = "";
-  const today = new Date();
-  const month1 = new Date(today.getFullYear(), today.getMonth(), 1);
-  const month2 = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+const calendarMonth1 = document.getElementById("calendar-month-1");
+const calendarMonth2 = document.getElementById("calendar-month-2");
+const selectedDatesDiv = document.getElementById("selected-dates");
+const clearBtn = document.getElementById("clear-selection");
+const submitBtn = document.getElementById("submit-schedule");
+const infoForm = document.getElementById("info-form");
+const calendarSection = document.getElementById("calendar-section");
 
-  calendarMonth1.appendChild(createCalendarTable(month1));
-  calendarMonth2.appendChild(createCalendarTable(month2));
+let selectedDates = [];
 
-  addDateClickListeners();
-  updateDateStyles();
+function datesEqual(d1, d2) {
+  return d1.getTime() === d2.getTime();
 }
 
-function createCalendarTable(date) {
-  const year = date.getFullYear();
-  const month = date.getMonth();
+function renderCalendar(container, year, month) {
+  container.innerHTML = "";
 
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
+  const startDay = firstDay.getDay();
+  const daysInMonth = lastDay.getDate();
 
   const table = document.createElement("table");
-  table.classList.add("calendar-table");
+  table.className = "calendar-table";
 
   const caption = document.createElement("caption");
   caption.textContent = firstDay.toLocaleString("default", { month: "long", year: "numeric" });
   table.appendChild(caption);
 
-  const daysRow = document.createElement("tr");
-  ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(day => {
+  const headerRow = document.createElement("tr");
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(dayName => {
     const th = document.createElement("th");
-    th.textContent = day;
-    daysRow.appendChild(th);
+    th.textContent = dayName;
+    headerRow.appendChild(th);
   });
-  table.appendChild(daysRow);
+  table.appendChild(headerRow);
 
-  let row = document.createElement("tr");
-  // Empty cells before first day
-  for (let i = 0; i < firstDay.getDay(); i++) {
-    row.appendChild(document.createElement("td"));
-  }
+  let totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+  let dayNum = 1;
 
-  for (let day = 1; day <= lastDay.getDate(); day++) {
-    if (row.children.length === 7) {
+  for (let i=0; i<totalCells; i++) {
+    if (i % 7 === 0) {
+      var row = document.createElement("tr");
       table.appendChild(row);
-      row = document.createElement("tr");
     }
 
     const cell = document.createElement("td");
-    cell.textContent = day;
 
-    const cellDate = new Date(year, month, day);
-    cellDate.setHours(0, 0, 0, 0);
+    if (i >= startDay && dayNum <= daysInMonth) {
+      let cellDate = new Date(year, month, dayNum);
+      cellDate.setHours(0,0,0,0);
 
-    if (isAvailable(cellDate)) {
-      cell.classList.add("available");
-      cell.dataset.date = cellDate.toISOString();
+      const isAvail = availableDates.some(d => datesEqual(d, cellDate));
+      cell.textContent = dayNum;
+
+      if (!isAvail) {
+        cell.classList.add("greyed");
+      } else {
+        if (selectedDates.some(d => datesEqual(d, cellDate))) {
+          cell.classList.add("selected");
+        } else if (selectedDates.length === 1) {
+          const diffDays = Math.floor((cellDate - selectedDates[0]) / (1000*60*60*24));
+          if ((diffDays >= 6 && diffDays <= 8) || (diffDays <= -6 && diffDays >= -8)) {
+            cell.classList.add("light-blue");
+          } else {
+            cell.classList.add("greyed");
+          }
+        } else {
+          cell.classList.add("available");
+        }
+        cell.addEventListener("click", () => onDateClick(cellDate));
+      }
+      dayNum++;
     } else {
+      cell.textContent = "";
       cell.classList.add("greyed");
     }
-
     row.appendChild(cell);
   }
-
-  // Fill empty cells at end
-  while (row.children.length < 7) {
-    row.appendChild(document.createElement("td"));
-  }
-  table.appendChild(row);
-
-  return table;
+  container.appendChild(table);
 }
 
-function isAvailable(date) {
-  return availableDates.some(d => d.getTime() === date.getTime());
-}
-
-function addDateClickListeners() {
-  document.querySelectorAll("td.available").forEach(cell => {
-    cell.addEventListener("click", () => {
-      const date = new Date(cell.dataset.date);
-      onDateSelect(date);
-    });
-  });
-}
-
-function onDateSelect(date) {
-  if (!firstSelectedDate) {
-    firstSelectedDate = date;
-    messageDiv.textContent = `First visit selected: ${formatDate(date)}. Please select the second visit date (6–8 days before or after).`;
-  } else if (!secondSelectedDate) {
-    if (isValidSecondDate(date)) {
-      secondSelectedDate = date;
-      showSelectedDatesAndTimes();
-      submitScheduleBtn.style.display = "block";
+function onDateClick(date) {
+  if (selectedDates.length === 0) {
+    selectedDates.push(date);
+    updateCalendars();
+    updateSelectedDatesText();
+    submitBtn.disabled = true;
+  } else if (selectedDates.length === 1) {
+    const diffDays = Math.abs(Math.floor((date - selectedDates[0]) / (1000*60*60*24)));
+    if (diffDays >= 6 && diffDays <= 8) {
+      selectedDates.push(date);
+      updateCalendars();
+      updateSelectedDatesText();
+      submitBtn.disabled = false;
     } else {
       alert("Second visit must be 6 to 8 days before or after the first visit.");
-      return;
     }
   }
-  updateDateStyles();
 }
 
-function isValidSecondDate(date) {
-  if (!firstSelectedDate) return false;
-  const diffDays = Math.abs((date - firstSelectedDate) / (1000 * 60 * 60 * 24));
-  return diffDays >= 6 && diffDays <= 8;
+function updateCalendars() {
+  const today = new Date();
+  const month1 = new Date(today.getFullYear(), today.getMonth(), 1);
+  const month2 = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  renderCalendar(calendarMonth1, month1.getFullYear(), month1.getMonth());
+  renderCalendar(calendarMonth2, month2.getFullYear(), month2.getMonth());
 }
 
-function updateDateStyles() {
-  document.querySelectorAll("td.available").forEach(cell => {
-    const date = new Date(cell.dataset.date);
-    cell.classList.remove("selected", "light-blue");
-
-    if (firstSelectedDate && secondSelectedDate) {
-      if (isSameDate(date, firstSelectedDate) || isSameDate(date, secondSelectedDate)) {
-        cell.classList.add("selected");
-      } else {
-        cell.classList.add("greyed");
-      }
-    } else if (firstSelectedDate) {
-      if (isSameDate(date, firstSelectedDate)) {
-        cell.classList.add("selected");
-      } else if (isValidSecondDate(date)) {
-        cell.classList.add("light-blue");
-        cell.classList.remove("greyed");
-      } else {
-        cell.classList.add("greyed");
-      }
-    } else {
-      cell.classList.remove("greyed");
-    }
-  });
+function updateSelectedDatesText() {
+  if (selectedDates.length === 0) {
+    selectedDatesDiv.innerHTML = "<p>No dates selected yet.</p>";
+  } else if (selectedDates.length === 1) {
+    selectedDatesDiv.innerHTML = `<p>Your Visit 1 date is <strong>${selectedDates[0].toDateString()}</strong></p>`;
+  } else {
+    const sorted = selectedDates.slice().sort((a,b) => a - b);
+    selectedDatesDiv.innerHTML = `<p>Your Visit 1 date is <strong>${sorted[0].toDateString()}</strong> &nbsp;&nbsp;|&nbsp;&nbsp; Your Visit 2 date is <strong>${sorted[1].toDateString()}</strong></p>`;
+  }
 }
 
-function showSelectedDatesAndTimes() {
-  const napTime = document.getElementById("nap-time").value;
-  selectedDatesDiv.innerHTML = `
-    <p>Your Visit 1 date is: ${formatDate(firstSelectedDate)}</p>
-    <p>Your Visit 2 date is: ${formatDate(secondSelectedDate)}</p>
-  `;
+clearBtn.addEventListener("click", () => {
+  selectedDates = [];
+  updateCalendars();
+  updateSelectedDatesText();
+  submitBtn.disabled = true;
+});
 
-  const visit1Time = calculateVisitTime(firstSelectedDate, napTime);
-  const visit2Time = calculateVisitTime(secondSelectedDate, napTime);
+infoForm.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-  messageDiv.innerHTML = `
-    <strong>Visit Times (2 hours 15 minutes before nap time):</strong><br>
-    Visit 1: ${visit1Time}<br>
-    Visit 2: ${visit2Time}
-  `;
-}
+  parentInfo = {
+    parentName: document.getElementById("parent-name").value.trim(),
+    parentEmail: document.getElementById("parent-email").value.trim(),
+    childName: document.getElementById("child-name").value.trim(),
+    napTime: document.getElementById("nap-time").value
+  };
 
-function calculateVisitTime(date, napTime) {
-  if (!napTime) return "Nap time not set";
-  const [napHour, napMinute] = napTime.split(":").map(Number);
-  const visitDateTime = new Date(date);
-  visitDateTime.setHours(napHour);
-  visitDateTime.setMinutes(napMinute);
-  visitDateTime.setSeconds(0);
-  visitDateTime.setMilliseconds(0);
-  visitDateTime.setMinutes(visitDateTime.getMinutes() - 135); // 2h 15m before nap
+  if(!parentInfo.parentName || !parentInfo.parentEmail || !parentInfo.childName || !parentInfo.napTime){
+    alert("Please fill in all the fields.");
+    return;
+  }
 
-  return visitDateTime.toLocaleString();
-}
+  // Hide form, show calendar
+  infoForm.style.display = "none";
+  calendarSection.style.display = "block";
 
-function isSameDate(date1, date2) {
-  return date1.getFullYear() === date2.getFullYear() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getDate() === date2.getDate();
-}
+  updateCalendars();
+  updateSelectedDatesText();
+});
 
-function formatDate(date) {
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+submitBtn.addEventListener("click", () => {
+  if (selectedDates.length !== 2) {
+    alert("Please select two visit dates.");
+    return;
+  }
+
+  // Store info in localStorage to pass to confirmation.html if needed
+  localStorage.setItem('parentInfo', JSON.stringify(parentInfo));
+  localStorage.setItem('selectedDates', JSON.stringify(selectedDates.map(d => d.toISOString())));
+
+  // Redirect to confirmation page
+  window.location.href = "confirmation.html";
+});
+
+function setup(){
+  // Initial UI state
+  infoForm.style.display = "block";
+  calendarSection.style.display = "none";
+  submitBtn.disabled = true;
+  updateSelectedDatesText();
 }
