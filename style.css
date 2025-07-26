@@ -50,17 +50,3 @@ input[type="submit"] {
   font-weight: bold;
 }
 
-body::after {
-  content: "";
-  position: fixed;
-  bottom: 30px;
-  left: 10%;
-  transform: translateX(-50%);
-  width: 150px; /* Smaller width */
-  aspect-ratio: 726/186;
-  height: auto;
-  background: url("https://static.wixstatic.com/media/8f5c95_26239d3d40374740a3c320ca058350ad~mv2.png/v1/fill/w_726,h_186,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/8f5c95_26239d3d40374740a3c320ca058350ad~mv2.png") no-repeat center / contain;
-  opacity: 0.6;
-  pointer-events: none;
-  z-index: -1;
-}
