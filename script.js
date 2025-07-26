@@ -174,38 +174,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function displayAppointmentInfo() {
-    const parentName = document.getElementById("parent-name").value;
-    const childName = document.getElementById("child-name").value;
+function displayAppointmentInfo() {
+  const parentName = document.getElementById("parent-name").value;
+  const childName = document.getElementById("child-name").value;
 
-    // Sort so visit1 is earlier
-    const visit1 = selectedDates[0] < selectedDates[1] ? selectedDates[0] : selectedDates[1];
-    const visit2 = selectedDates[0] > selectedDates[1] ? selectedDates[0] : selectedDates[1];
+  // Sort so visit1 is earlier
+  const visit1 = selectedDates[0] < selectedDates[1] ? selectedDates[0] : selectedDates[1];
+  const visit2 = selectedDates[0] > selectedDates[1] ? selectedDates[0] : selectedDates[1];
 
-    const napHour = parseInt(napTime.split(":")[0]);
-    const napMinute = parseInt(napTime.split(":")[1]);
+  const napHour = parseInt(napTime.split(":")[0]);
+  const napMinute = parseInt(napTime.split(":")[1]);
 
-    // Visit time = nap time minus 2h15m
-    let visitHour = napHour;
-    let visitMinute = napMinute - 15;
-    if (visitMinute < 0) {
-      visitMinute += 60;
-      visitHour = (visitHour + 23) % 24;
-    } else {
-      visitHour = (visitHour + 24 - 2) % 24;
-    }
-
-    const visitTime = `${visitHour.toString().padStart(2, "0")}:${visitMinute
-      .toString()
-      .padStart(2, "0")}`;
-
-    selectedDatesDisplay.innerHTML = `
-      <p><strong>Your Visit 1 date is:</strong> ${visit1.toDateString()} at ${visitTime}</p>
-      <p><strong>Your Visit 2 date is:</strong> ${visit2.toDateString()} at ${visitTime}</p>
-    `;
-
-    messageDiv.innerHTML = `
-      <p>Thank you, ${parentName}. ${childName}'s visits are scheduled as shown above.</p>
-    `;
+  // Calculate visit time: nap time minus 2h15m
+  let visitHour = napHour;
+  let visitMinute = napMinute - 15;
+  if (visitMinute < 0) {
+    visitMinute += 60;
+    visitHour = (visitHour + 23) % 24;
+  } else {
+    visitHour = (visitHour + 24 - 2) % 24;
   }
-});
+
+  const visitTime = `${visitHour.toString().padStart(2, "0")}:${visitMinute.toString().padStart(2, "0")}`;
+
+  selectedDatesDisplay.innerHTML = `
+    <p><strong>Your Visit 1 date is:</strong> ${visit1.toDateString()} at ${visitTime}</p>
+    <p><strong>Your Visit 2 date is:</strong> ${visit2.toDateString()} at ${visitTime}</p>
+  `;
+
+  messageDiv.innerHTML = `
+    <p>Thank you, ${parentName}. ${childName}'s visits are scheduled as shown above.</p>
+  `;
+}
