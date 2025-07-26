@@ -22,11 +22,35 @@
 
   <section id="calendar-section" style="display: none;">
     <h2>Select Visit Dates</h2>
-    <div id="calendar"></div>
+    <p>Please select two visit dates that are 6–8 days apart. Only available dates will be highlighted.</p>
+    <div class="calendar-wrapper">
+      <div id="calendar-month-1" class="calendar"></div>
+      <div id="calendar-month-2" class="calendar"></div>
+    </div>
     <div id="selected-dates"></div>
     <div id="message"></div>
     <button id="clear-selection">Clear Selection</button>
   </section>
+
+  <section id="confirmation-section" style="display: none;">
+    <h2>Submission Received</h2>
+    <p>Your requested schedule times have been recorded. A member of our staff will reach out with further information. Thank you!</p>
+  </section>
+
+  <script>
+    let availableDates = [];
+
+    fetch('available_dates.json')
+      .then(response => response.json())
+      .then(data => {
+        availableDates = data.dates.map(date => new Date(date));
+        initCalendars();
+      });
+
+    function initCalendars() {
+      // Initialization logic will go here, using availableDates
+    }
+  </script>
 
   <script src="script.js"></script>
 </body>
