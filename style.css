@@ -1,22 +1,21 @@
+/* General page styles */
 body {
   font-family: Tahoma, Verdana, sans-serif;
   background-color: #8B0000;
   padding: 20px;
-  color: #333;
 }
- 
+
 .container {
-  max-width: 600px;
+  max-width: 500px;
   margin: auto;
   background: white;
-  padding: 20px 30px;
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
   text-align: center;
-  color: #8B0000;
 }
 
 .form-group {
@@ -26,91 +25,96 @@ h1, h2 {
 label {
   display: block;
   margin-bottom: 5px;
-  font-weight: 600;
 }
 
 input[type="text"],
 input[type="email"],
+input[type="date"],
 input[type="time"] {
   width: 100%;
   padding: 8px;
   box-sizing: border-box;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
 }
 
-button,
-button[type="submit"] {
-  background-color: #8B0000;
+button, input[type="submit"] {
+  background-color: #4CAF50;
   color: white;
   border: none;
-  padding: 12px 20px;
+  padding: 10px 15px;
   cursor: pointer;
   width: 100%;
   font-size: 16px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
+  border-radius: 4px;
+  margin-top: 10px;
 }
 
-button:hover,
-button[type="submit"]:hover {
-  background-color: #a00000;
-}
-
-#calendar-section p {
-  text-align: center;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-#clear-selection {
-  display: block;
-  margin: 10px auto 20px auto;
-  width: auto;
-  padding: 8px 16px;
-}
-
-.calendar-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.calendar-table th,
-.calendar-table td {
-  border: 1px solid #ddd;
-  text-align: center;
-  padding: 10px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.calendar-table th {
-  background-color: #8B0000;
-  color: white;
-  font-weight: bold;
-}
-
-.calendar-cell:hover {
-  background-color: #f0e6e6;
-}
-
-.selected {
-  background-color: #4682B4 !important; /* steelblue */
-  color: white;
-  font-weight: bold;
-}
-
-#selected-dates {
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 15px;
-}
-
+/* Message display */
 #message {
-  text-align: center;
+  margin-top: 20px;
   font-weight: bold;
-  color: #006400; /* dark green */
+  text-align: center;
+}
+
+/* Calendar table styles */
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.calendar-table th, 
+.calendar-table td {
+  border: 1px solid #ccc;
+  text-align: center;
+  padding: 10px 0;
+  user-select: none;
+  width: 14.28%; /* 100% / 7 days */
+}
+
+/* Style for empty cells before first day */
+.calendar-table td.disabled {
+  background-color: #f9f9f9;
+  cursor: default;
+}
+
+/* Available dates in blue */
+.calendar-cell.available {
+  background-color: #4682B4; /* steelblue */
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.calendar-cell.available:hover {
+  background-color: #5a9bd5;
+}
+
+/* Greyed out unavailable dates */
+.calendar-cell.greyed-out {
+  background-color: #ddd;
+  color: #888;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Selected dates with darker blue */
+.calendar-cell.selected {
+  background-color: #104E8B; /* darker steelblue */
+  color: white;
+  font-weight: bold;
+  border: 2px solid #0B3D91;
+  cursor: default;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .container {
+    padding: 15px;
+  }
+
+  button, input[type="submit"] {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
 }
