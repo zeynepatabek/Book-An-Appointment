@@ -1,103 +1,115 @@
-// script.js
-
 document.addEventListener("DOMContentLoaded", function () {
   const infoForm = document.getElementById("info-form");
-  const schedulingSection = document.getElementById("scheduling-section");
-  const appointmentForm = document.getElementById("appointment-form");
-  const calendarDiv = document.getElementById("calendar");
-  const visitMsg = document.getElementById("visit-messages");
+  const calendarSection = document.getElementById("calendar-section");
+  const calendarContainer = document.getElementById("calendar");
+  const selectedDatesDisplay = document.getElementById("selected-dates");
+  const messageDiv = document.getElementById("message");
 
-  let selectedDate = null;
-  let secondDate = null;
-  let napTime = null;
+  let selectedDates = [];
+  let napTime = "";
 
-  // Step 1: Capture info form
-  infoForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    napTime = document.getElementById("naptime").value;
-    if (!napTime) return alert("Please enter a nap time.");
-    schedulingSection.style.display = "block";
-    infoForm.style.display = "none";
+  infoForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    napTime = document.getElementById("nap-time").value;
+    document.getElementById("info-form").style.display = "none";
+    calendarSection.style.display = "block";
     renderCalendar();
   });
 
-  // Render calendar for current and next month
   function renderCalendar() {
     const today = new Date();
-    const container = document.createElement("div");
-    container.className = "calendar-grid";
-    for (let i = 0; i < 60; i++) {
-      const date = new Date();
-      date.setDate(today.getDate() + i);
-      const day = document.createElement("div");
-      day.className = "calendar-day";
-      day.textContent = date.getDate();
-      day.dataset.date = date.toISOString().split("T")[0];
-      day.addEventListener("click", () => handleDateClick(date, day));
-      container.appendChild(day);
+    const year = today.getFullYear();
+    const month = today.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const calendarTable = document.createElement("table");
+    calendarTable.classList.add("calendar-table");
+
+    const headerRow = document.createElement("tr");
+    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(day => {
+      const th = document.createElement("th");
+      th.textContent = day;
+      headerRow.appendChild(th);
+    });
+    calendarTable.appendChild(headerRow);
+
+    let row = document.createElement("tr");
+    for (let i = 0; i < firstDay.getDay(); i++) {
+      row.appendChild(document.createElement("td"));
     }
-    calendarDiv.innerHTML = "";
-    calendarDiv.appendChild(container);
-  }
 
-  // Handle date selection
-  function handleDateClick(dateObj, element) {
-    const allDays = document.querySelectorAll(".calendar-day");
-    allDays.forEach((el) => el.classList.remove("selected", "selectable"));
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const currentDate = new Date(year, month, d);
+      const cell = document.createElement("td");
+      cell.textContent = d;
+      cell.dataset.date = currentDate.toISOString().split('T')[0];
+      cell.classList.add("calendar-cell");
 
-    if (!selectedDate) {
-      selectedDate = dateObj;
-      element.classList.add("selected");
-      visitMsg.innerText = `Your Visit 1 date is ${selectedDate.toDateString()}`;
-      document.getElementById("visit1").value = selectedDate.toISOString().split("T")[0];
+      cell.addEventListener("click", function () {
+        const clickedDate = new Date(this.dataset.date);
 
-      // Allow second visit only one week apart
-      allDays.forEach((el) => {
-        const thisDate = new Date(el.dataset.date);
-        const diffDays = Math.abs((thisDate - selectedDate) / (1000 * 60 * 60 * 24));
-        if (diffDays === 7) {
-          el.classList.add("selectable");
-          el.addEventListener("click", () => {
-            secondDate = thisDate;
-            el.classList.add("selected");
-            visitMsg.innerText += `\nYour Visit 2 date is ${secondDate.toDateString()}`;
-            document.getElementById("visit2").value = secondDate.toISOString().split("T")[0];
+        if (selectedDates.length === 0) {
+          selectedDates.push(clickedDate);
+          highlightDates();
+        } else if (selectedDates.length === 1) {
+          const firstDate = selectedDates[0];
+          const diffDays = Math.abs((clickedDate - firstDate) / (1000 * 60 * 60 * 24));
 
-            // Calculate times
-            const [napHour, napMin] = napTime.split(":").map(Number);
-            const visitHour = (napHour + 24 - 2) % 24;
-            const timeStr = `${visitHour.toString().padStart(2, "0")}:${napMin.toString().padStart(2, "0")}`;
-
-            document.getElementById("final-visit1").value = selectedDate.toISOString().split("T")[0];
-            document.getElementById("final-visit2").value = secondDate.toISOString().split("T")[0];
-            document.getElementById("final-time1").value = timeStr;
-            document.getElementById("final-time2").value = timeStr;
-            document.getElementById("appointment-form").submit();
-          });
+          if (diffDays >= 6 && diffDays <= 8) {
+            selectedDates.push(clickedDate);
+            highlightDates();
+            displayAppointmentInfo();
+          } else {
+            alert("Second visit must be within ±1 week of the first visit.");
+          }
         }
       });
+
+      row.appendChild(cell);
+      if ((firstDay.getDay() + d) % 7 === 0) {
+        calendarTable.appendChild(row);
+        row = document.createElement("tr");
+      }
     }
+    calendarTable.appendChild(row);
+
+    calendarContainer.innerHTML = `<h3>${today.toLocaleString('default', { month: 'long' })} ${year}</h3>`;
+    calendarContainer.appendChild(calendarTable);
   }
 
-  document.getElementById("clear-selection").addEventListener("click", () => {
-    selectedDate = null;
-    secondDate = null;
-    renderCalendar();
-    visitMsg.innerText = "";
-  });
+  function highlightDates() {
+    const allCells = document.querySelectorAll(".calendar-cell");
+    allCells.forEach(cell => cell.classList.remove("selected"));
 
-  // Final submission handler (for display only)
-  appointmentForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const name = document.getElementById("parent-name").value;
-    const email = document.getElementById("parent-email").value;
-    const visit1 = document.getElementById("final-visit1").value;
-    const visit2 = document.getElementById("final-visit2").value;
-    const time = document.getElementById("final-time1").value;
+    selectedDates.forEach(date => {
+      const iso = date.toISOString().split('T')[0];
+      const match = [...allCells].find(c => c.dataset.date === iso);
+      if (match) match.classList.add("selected");
+    });
+  }
 
-    document.getElementById("message").innerHTML =
-      `Thanks, ${name}!<br>Your appointments are confirmed for:<br>` +
-      `Visit 1: ${visit1} at ${time}<br>` +
-      `Visit 2: ${visit2} at ${time}`;
-  });
+  function displayAppointmentInfo() {
+    const parentName = document.getElementById("parent-name").value;
+    const childName = document.getElementById("child-name").value;
+
+    const visit1 = selectedDates[0] < selectedDates[1] ? selectedDates[0] : selectedDates[1];
+    const visit2 = selectedDates[0] > selectedDates[1] ? selectedDates[0] : selectedDates[1];
+
+    const napHour = parseInt(napTime.split(":")[0]);
+    const napMinute = parseInt(napTime.split(":")[1]);
+    const visitHour = (napHour + 24 - 2) % 24;
+    const visitTime = `${visitHour.toString().padStart(2, '0')}:${napMinute.toString().padStart(2, '0')}`;
+
+    selectedDatesDisplay.innerHTML = `
+      <p><strong>Your Visit 1 date is:</strong> ${visit1.toDateString()} at ${visitTime}</p>
+      <p><strong>Your Visit 2 date is:</strong> ${visit2.toDateString()} at ${visitTime}</p>
+    `;
+
+    messageDiv.innerHTML = `
+      <p>Thank you, ${parentName}. ${childName}'s visits are scheduled as shown above.</p>
+    `;
+  }
 });
