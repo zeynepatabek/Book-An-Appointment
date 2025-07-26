@@ -6,24 +6,6 @@
   <title>Appointment Form | pbc-webdev</title>
   <link rel="stylesheet" href="style.css" />
   <script src="script.js" defer></script>
-  <style>
-    /* Minimal CSS for the calendar grid */
-    #calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-      max-width: 350px;
-      margin-top: 5px;
-    }
-    .day {
-      user-select: none;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
   <div class="container" id="booking-container">
@@ -37,11 +19,11 @@
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required />
       </div>
-      <!-- REPLACED native date input with custom calendar -->
       <div class="form-group">
         <label for="calendar">Select a Date:</label>
         <div id="calendar"></div>
         <input type="hidden" id="date" name="date" required />
+        <button type="button" id="clear-selection" style="margin-top:8px;">Clear Selection</button>
       </div>
       <div class="form-group">
         <label for="time">Select a Time:</label>
