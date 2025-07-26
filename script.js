@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedDates = [];
     selectedDatesDisplay.innerHTML = "";
     messageDiv.innerHTML = "";
-    highlightDates();
+    renderCalendar();
   });
 
   function renderCalendar() {
@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const calendarTable = document.createElement("table");
     calendarTable.classList.add("calendar-table");
 
+    // Header row with day names
     const headerRow = document.createElement("tr");
     ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(day => {
       const th = document.createElement("th");
@@ -53,10 +54,14 @@ document.addEventListener("DOMContentLoaded", function () {
     calendarTable.appendChild(headerRow);
 
     let row = document.createElement("tr");
+    // Empty cells before first day
     for (let i = 0; i < firstDay.getDay(); i++) {
-      row.appendChild(document.createElement("td"));
+      const emptyCell = document.createElement("td");
+      emptyCell.classList.add("disabled"); // style for empty
+      row.appendChild(emptyCell);
     }
 
+    // Date cells
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const currentDate = new Date(year, month, d);
       const cell = document.createElement("td");
@@ -64,13 +69,18 @@ document.addEventListener("DOMContentLoaded", function () {
       cell.dataset.date = currentDate.toISOString().split('T')[0];
       cell.classList.add("calendar-cell");
 
+      // Initially all dates available in blue
+      cell.classList.add("available");
+
       cell.addEventListener("click", function () {
         const clickedDate = new Date(this.dataset.date);
 
         if (selectedDates.length === 0) {
+          // Select first date
           selectedDates.push(clickedDate);
           highlightDates();
         } else if (selectedDates.length === 1) {
+          // Select second date only if within ±1 week of first
           const firstDate = selectedDates[0];
           const diffDays = Math.abs((clickedDate - firstDate) / (1000 * 60 * 60 * 24));
 
@@ -94,16 +104,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
     calendarContainer.innerHTML = `<h3>${today.toLocaleString('default', { month: 'long' })} ${year}</h3>`;
     calendarContainer.appendChild(calendarTable);
+
+    updateAvailability();
   }
 
   function highlightDates() {
     const allCells = document.querySelectorAll(".calendar-cell");
-    allCells.forEach(cell => cell.classList.remove("selected"));
+    allCells.forEach(cell => {
+      cell.classList.remove("selected");
+      cell.classList.remove("greyed-out");
+      cell.classList.remove("available");
+    });
 
-    selectedDates.forEach(date => {
-      const iso = date.toISOString().split('T')[0];
-      const match = [...allCells].find(c => c.dataset.date === iso);
-      if (match) match.classList.add("selected");
+    if (selectedDates.length === 0) {
+      // No selections: all available blue
+      allCells.forEach(cell => cell.classList.add("available"));
+    } else if (selectedDates.length === 1) {
+      const firstDate = selectedDates[0];
+
+      allCells.forEach(cell => {
+        const cellDate = new Date(cell.dataset.date);
+        const diffDays = Math.abs((cellDate - firstDate) / (1000 * 60 * 60 * 24));
+
+        if (cellDate.getMonth() !== firstDate.getMonth()) {
+          // Grey out dates outside current month
+          cell.classList.add("greyed-out");
+          cell.classList.remove("available");
+        } else if (diffDays >= 6 && diffDays <= 8) {
+          // Allowed second date range in blue
+          cell.classList.add("available");
+          cell.classList.remove("greyed-out");
+        } else if (cellDate.getTime() === firstDate.getTime()) {
+          // The first selected date
+          cell.classList.add("selected");
+          cell.classList.remove("available");
+        } else {
+          // Grey out all others
+          cell.classList.add("greyed-out");
+          cell.classList.remove("available");
+        }
+      });
+    } else if (selectedDates.length === 2) {
+      // Both selected, highlight them and grey out others
+      allCells.forEach(cell => {
+        const cellDate = new Date(cell.dataset.date);
+        if (selectedDates.some(d => d.getTime() === cellDate.getTime())) {
+          cell.classList.add("selected");
+          cell.classList.remove("available");
+        } else {
+          cell.classList.add("greyed-out");
+          cell.classList.remove("available");
+        }
+      });
+    }
+  }
+
+  function updateAvailability() {
+    const allCells = document.querySelectorAll(".calendar-cell");
+    allCells.forEach(cell => {
+      cell.classList.add("available");
+      cell.classList.remove("greyed-out");
+      cell.classList.remove("selected");
     });
   }
 
@@ -111,12 +172,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const parentName = document.getElementById("parent-name").value;
     const childName = document.getElementById("child-name").value;
 
+    // Sort visits so visit1 is earlier
     const visit1 = selectedDates[0] < selectedDates[1] ? selectedDates[0] : selectedDates[1];
     const visit2 = selectedDates[0] > selectedDates[1] ? selectedDates[0] : selectedDates[1];
 
     const napHour = parseInt(napTime.split(":")[0]);
     const napMinute = parseInt(napTime.split(":")[1]);
 
+    // Calculate visit time = nap time minus 2 hours 15 minutes
     let visitHour = napHour;
     let visitMinute = napMinute - 15;
     if (visitMinute < 0) {
