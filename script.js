@@ -1,19 +1,23 @@
 let parentInfo = {};
 let availableDates = [];
 
-// Fetch available dates from JSON file and initialize calendar after fetch
-fetch('available_dates.json')
-  .then(response => response.json())
-  .then(data => {
-    availableDates = data.dates.map(d => {
-      const dt = new Date(d);
-      dt.setHours(0,0,0,0);
-      return dt;
-    });
+// Fetch available dates from txt file and initialize calendar after fetch
+fetch('available_dates.txt')
+  .then(response => response.text())
+  .then(text => {
+    availableDates = text
+      .split('\n')              // split by newlines
+      .map(line => line.trim()) // trim whitespace
+      .filter(line => line)     // remove empty lines
+      .map(d => {
+        const dt = new Date(d);
+        dt.setHours(0,0,0,0);
+        return dt;
+      });
     setup();
   })
   .catch(err => {
-    alert("Failed to load available dates. Please try again later.");
+    alert("Failed to load available dates.");
     console.error(err);
   });
 
