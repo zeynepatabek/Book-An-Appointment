@@ -26,15 +26,18 @@ label {
   margin-bottom: 5px;
 }
 
+/* Inputs styling */
 input[type="text"],
 input[type="email"],
 input[type="date"],
-input[type="time"] {
+input[type="time"],
+input[type="hidden"] {
   width: 100%;
   padding: 8px;
   box-sizing: border-box;
 }
 
+/* Submit button */
 input[type="submit"] {
   background-color: #4CAF50;
   color: white;
@@ -45,8 +48,57 @@ input[type="submit"] {
   font-size: 16px;
 }
 
+/* Message display */
 #message {
   margin-top: 20px;
   font-weight: bold;
 }
 
+/* Calendar container grid */
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  max-width: 350px;
+  margin-top: 5px;
+}
+
+/* Weekday headers */
+#calendar > div:nth-child(-n+7) {
+  font-weight: bold;
+  text-align: center;
+  padding: 5px 0;
+  user-select: none;
+}
+
+/* Day cells */
+.day {
+  user-select: none;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Blue range highlight */
+.day.range {
+  background-color: #a3c4f3;
+  color: white;
+}
+
+/* Selected day */
+.day.selected {
+  background-color: #004aad;
+  color: white;
+  font-weight: bold;
+}
+
+/* Disabled days */
+.day.disabled {
+  background-color: #ddd !important;
+  color: #888 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
