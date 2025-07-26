@@ -1,26 +1,36 @@
+let availableDates = [];
 let firstSelectedDate = null;
 let secondSelectedDate = null;
 
+const infoForm = document.getElementById("info-form");
+const calendarSection = document.getElementById("calendar-section");
+const confirmationSection = document.getElementById("confirmation-section");
 const calendarMonth1 = document.getElementById("calendar-month-1");
 const calendarMonth2 = document.getElementById("calendar-month-2");
 const selectedDatesDiv = document.getElementById("selected-dates");
 const messageDiv = document.getElementById("message");
 const clearBtn = document.getElementById("clear-selection");
-const napTimeInput = document.getElementById("nap-time");
-const infoForm = document.getElementById("info-form");
-const calendarSection = document.getElementById("calendar-section");
-const confirmationSection = document.getElementById("confirmation-section");
 
-let availableDates = [];
+// Create and append Submit Schedule button dynamically
+const submitScheduleBtn = document.createElement("button");
+submitScheduleBtn.textContent = "Submit Schedule";
+submitScheduleBtn.style.marginTop = "20px";
+submitScheduleBtn.style.display = "none"; // hidden initially
+calendarSection.appendChild(submitScheduleBtn);
 
 infoForm.addEventListener("submit", (e) => {
   e.preventDefault();
   calendarSection.style.display = "block";
   infoForm.style.display = "none";
+  confirmationSection.style.display = "none";
+
   firstSelectedDate = null;
   secondSelectedDate = null;
   selectedDatesDiv.innerHTML = "";
   messageDiv.innerHTML = "";
+  submitScheduleBtn.style.display = "none";
+  submitScheduleBtn.disabled = false;
+
   renderCalendars();
 });
 
@@ -29,8 +39,33 @@ clearBtn.addEventListener("click", () => {
   secondSelectedDate = null;
   selectedDatesDiv.innerHTML = "";
   messageDiv.innerHTML = "";
+  submitScheduleBtn.style.display = "none";
+  submitScheduleBtn.disabled = false;
   renderCalendars();
 });
+
+submitScheduleBtn.addEventListener("click", () => {
+  messageDiv.textContent = "Submitting your schedule...";
+  submitScheduleBtn.disabled = true;
+
+  setTimeout(() => {
+    calendarSection.style.display = "none";
+    confirmationSection.style.display = "block";
+  }, 5000);
+});
+
+fetch('available_dates.json')
+  .then(response => response.json())
+  .then(data => {
+    availableDates = data.dates.map(dateStr => {
+      const d = new Date(dateStr);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    });
+  })
+  .catch(err => {
+    console.error("Error loading available_dates.json", err);
+  });
 
 function renderCalendars() {
   calendarMonth1.innerHTML = "";
@@ -69,7 +104,7 @@ function createCalendarTable(date) {
   table.appendChild(daysRow);
 
   let row = document.createElement("tr");
-  // Add empty cells for days before the first day of the month
+  // Empty cells before first day
   for (let i = 0; i < firstDay.getDay(); i++) {
     row.appendChild(document.createElement("td"));
   }
@@ -84,7 +119,7 @@ function createCalendarTable(date) {
     cell.textContent = day;
 
     const cellDate = new Date(year, month, day);
-    cellDate.setHours(0,0,0,0);
+    cellDate.setHours(0, 0, 0, 0);
 
     if (isAvailable(cellDate)) {
       cell.classList.add("available");
@@ -96,7 +131,7 @@ function createCalendarTable(date) {
     row.appendChild(cell);
   }
 
-  // Fill the remaining cells in the last row
+  // Fill empty cells at end
   while (row.children.length < 7) {
     row.appendChild(document.createElement("td"));
   }
@@ -121,11 +156,12 @@ function addDateClickListeners() {
 function onDateSelect(date) {
   if (!firstSelectedDate) {
     firstSelectedDate = date;
-    messageDiv.textContent = "First visit selected: " + formatDate(date) + ". Please select the second visit date (6–8 days before or after).";
+    messageDiv.textContent = `First visit selected: ${formatDate(date)}. Please select the second visit date (6–8 days before or after).`;
   } else if (!secondSelectedDate) {
     if (isValidSecondDate(date)) {
       secondSelectedDate = date;
       showSelectedDatesAndTimes();
+      submitScheduleBtn.style.display = "block";
     } else {
       alert("Second visit must be 6 to 8 days before or after the first visit.");
       return;
@@ -146,14 +182,12 @@ function updateDateStyles() {
     cell.classList.remove("selected", "light-blue");
 
     if (firstSelectedDate && secondSelectedDate) {
-      // Both selected - highlight selections only
       if (isSameDate(date, firstSelectedDate) || isSameDate(date, secondSelectedDate)) {
         cell.classList.add("selected");
       } else {
         cell.classList.add("greyed");
       }
     } else if (firstSelectedDate) {
-      // Only first selected - enable only dates 6-8 days before or after
       if (isSameDate(date, firstSelectedDate)) {
         cell.classList.add("selected");
       } else if (isValidSecondDate(date)) {
@@ -163,7 +197,6 @@ function updateDateStyles() {
         cell.classList.add("greyed");
       }
     } else {
-      // None selected - all available are enabled (blue)
       cell.classList.remove("greyed");
     }
   });
@@ -194,7 +227,7 @@ function calculateVisitTime(date, napTime) {
   visitDateTime.setMinutes(napMinute);
   visitDateTime.setSeconds(0);
   visitDateTime.setMilliseconds(0);
-  visitDateTime.setMinutes(visitDateTime.getMinutes() - 135); // 2 hours 15 minutes before
+  visitDateTime.setMinutes(visitDateTime.getMinutes() - 135); // 2h 15m before nap
 
   return visitDateTime.toLocaleString();
 }
@@ -203,4 +236,8 @@ function isSameDate(date1, date2) {
   return date1.getFullYear() === date2.getFullYear() &&
          date1.getMonth() === date2.getMonth() &&
          date1.getDate() === date2.getDate();
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
