@@ -1,12 +1,113 @@
 document.addEventListener("DOMContentLoaded", function () {
-  var form = document.getElementById("appointment-form");
+  const form = document.getElementById("appointment-form");
+  const calendarEl = document.getElementById('calendar');
+  const hiddenDateInput = document.getElementById('date');
 
+  // Calendar parameters
+  const rangeStart = new Date(2025, 6, 10); // July 10, 2025
+  const rangeEnd = new Date(2025, 6, 20);   // July 20, 2025
+  const year = 2025;
+  const month = 6; // July
+
+  let selectedDate = null;
+
+  function formatDate(date) {
+    return date.toISOString().split('T')[0];
+  }
+
+  function isSameDay(d1, d2) {
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
+  }
+
+  function inRange(date, start, end) {
+    return date >= start && date <= end;
+  }
+
+  function renderCalendar() {
+    calendarEl.innerHTML = '';
+
+    // Weekday headings
+    const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    weekdays.forEach(day => {
+      const wd = document.createElement('div');
+      wd.textContent = day;
+      wd.style.fontWeight = 'bold';
+      wd.style.textAlign = 'center';
+      calendarEl.appendChild(wd);
+    });
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDayOfWeek = firstDay.getDay();
+
+    for (let i = 0; i < startDayOfWeek; i++) {
+      calendarEl.appendChild(document.createElement('div'));
+    }
+
+    for (let dayNum = 1; dayNum <= lastDay.getDate(); dayNum++) {
+      const dayDate = new Date(year, month, dayNum);
+      const dayEl = document.createElement('div');
+      dayEl.textContent = dayNum;
+      dayEl.classList.add('day');
+      dayEl.style.textAlign = 'center';
+      dayEl.style.padding = '8px';
+      dayEl.style.border = '1px solid #ccc';
+      dayEl.style.borderRadius = '4px';
+      dayEl.style.cursor = 'pointer';
+      dayEl.style.userSelect = 'none';
+
+      if (inRange(dayDate, rangeStart, rangeEnd)) {
+        dayEl.style.backgroundColor = '#a3c4f3';
+        dayEl.style.color = 'white';
+      }
+
+      if (selectedDate) {
+        const oneWeekBefore = new Date(selectedDate);
+        oneWeekBefore.setDate(oneWeekBefore.getDate() - 7);
+        const oneWeekAfter = new Date(selectedDate);
+        oneWeekAfter.setDate(oneWeekAfter.getDate() + 7);
+
+        if (!(
+          isSameDay(dayDate, selectedDate) ||
+          isSameDay(dayDate, oneWeekBefore) ||
+          isSameDay(dayDate, oneWeekAfter)
+        )) {
+          dayEl.style.backgroundColor = '#ddd';
+          dayEl.style.color = '#888';
+          dayEl.style.cursor = 'not-allowed';
+          dayEl.style.pointerEvents = 'none';
+        }
+      }
+
+      if (selectedDate && isSameDay(dayDate, selectedDate)) {
+        dayEl.style.backgroundColor = '#004aad';
+        dayEl.style.color = 'white';
+        dayEl.style.fontWeight = 'bold';
+      }
+
+      if (!dayEl.style.pointerEvents || dayEl.style.pointerEvents !== 'none') {
+        dayEl.addEventListener('click', () => {
+          selectedDate = dayDate;
+          hiddenDateInput.value = formatDate(selectedDate);
+          renderCalendar();
+        });
+      }
+
+      calendarEl.appendChild(dayEl);
+    }
+  }
+
+  renderCalendar();
+
+  // Form submission handler
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
-    const date = document.getElementById("date").value;
+    const date = hiddenDateInput.value; // get from hidden input updated by calendar
     const time = document.getElementById("time").value;
 
     if (!date || !time) {
@@ -17,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const datetime = `${date}T${time}`;
 
     setTimeout(function () {
-      var messageDiv = document.getElementById("message");
+      const messageDiv = document.getElementById("message");
       messageDiv.innerHTML = `Thanks, ${name}! Your appointment is booked for ${date} at ${time}.`;
       messageDiv.style.color = "green";
 
@@ -28,6 +129,10 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       form.reset();
+      // Reset calendar selection and hidden input as well
+      selectedDate = null;
+      hiddenDateInput.value = '';
+      renderCalendar();
     }, 1000);
   });
 });
