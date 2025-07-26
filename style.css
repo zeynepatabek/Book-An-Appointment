@@ -90,6 +90,19 @@ button, input[type="submit"] {
   background-color: #5a9bd5;
 }
 
+/* Second visit selectable dates in light blue */
+.calendar-cell.second-available {
+  background-color: #87CEFA; /* light sky blue */
+  color: black;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.calendar-cell.second-available:hover {
+  background-color: #a9d7ff;
+}
+
 /* Greyed out unavailable dates */
 .calendar-cell.greyed-out {
   background-color: #ddd;
