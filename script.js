@@ -6,12 +6,12 @@ fetch('available_dates.txt')
   .then(response => response.text())
   .then(text => {
     availableDates = text
-      .split('\n')              // Split lines
-      .map(line => line.trim()) // Trim spaces
-      .filter(line => line)     // Remove empty lines
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line)
       .map(d => {
         const dt = new Date(d);
-        dt.setHours(0,0,0,0);   // Normalize time part
+        dt.setHours(0, 0, 0, 0);
         return dt;
       });
     setup();
@@ -51,7 +51,7 @@ function renderCalendar(container, year, month) {
   table.appendChild(caption);
 
   const headerRow = document.createElement("tr");
-  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(dayName => {
+  ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(dayName => {
     const th = document.createElement("th");
     th.textContent = dayName;
     headerRow.appendChild(th);
@@ -61,7 +61,7 @@ function renderCalendar(container, year, month) {
   let totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
   let dayNum = 1;
 
-  for (let i=0; i<totalCells; i++) {
+  for (let i = 0; i < totalCells; i++) {
     if (i % 7 === 0) {
       var row = document.createElement("tr");
       table.appendChild(row);
@@ -71,7 +71,7 @@ function renderCalendar(container, year, month) {
 
     if (i >= startDay && dayNum <= daysInMonth) {
       let cellDate = new Date(year, month, dayNum);
-      cellDate.setHours(0,0,0,0);
+      cellDate.setHours(0, 0, 0, 0);
 
       const isAvail = availableDates.some(d => datesEqual(d, cellDate));
       cell.textContent = dayNum;
@@ -82,7 +82,7 @@ function renderCalendar(container, year, month) {
         if (selectedDates.some(d => datesEqual(d, cellDate))) {
           cell.classList.add("selected");
         } else if (selectedDates.length === 1) {
-          const diffDays = Math.floor((cellDate - selectedDates[0]) / (1000*60*60*24));
+          const diffDays = Math.floor((cellDate - selectedDates[0]) / (1000 * 60 * 60 * 24));
           if ((diffDays >= 6 && diffDays <= 8) || (diffDays <= -6 && diffDays >= -8)) {
             cell.classList.add("light-blue");
           } else {
@@ -110,7 +110,7 @@ function onDateClick(date) {
     updateSelectedDatesText();
     submitBtn.disabled = true;
   } else if (selectedDates.length === 1) {
-    const diffDays = Math.abs(Math.floor((date - selectedDates[0]) / (1000*60*60*24)));
+    const diffDays = Math.abs(Math.floor((date - selectedDates[0]) / (1000 * 60 * 60 * 24)));
     if (diffDays >= 6 && diffDays <= 8) {
       selectedDates.push(date);
       updateCalendars();
@@ -137,7 +137,7 @@ function updateSelectedDatesText() {
   } else if (selectedDates.length === 1) {
     selectedDatesDiv.innerHTML = `<p>Your Visit 1 date is <strong>${selectedDates[0].toDateString()}</strong></p>`;
   } else {
-    const sorted = selectedDates.slice().sort((a,b) => a - b);
+    const sorted = selectedDates.slice().sort((a, b) => a - b);
     selectedDatesDiv.innerHTML = `<p>Your Visit 1 date is <strong>${sorted[0].toDateString()}</strong> &nbsp;&nbsp;|&nbsp;&nbsp; Your Visit 2 date is <strong>${sorted[1].toDateString()}</strong></p>`;
   }
 }
@@ -159,12 +159,11 @@ infoForm.addEventListener("submit", (e) => {
     napTime: document.getElementById("nap-time").value
   };
 
-  if(!parentInfo.parentName || !parentInfo.parentEmail || !parentInfo.childName || !parentInfo.napTime){
+  if (!parentInfo.parentName || !parentInfo.parentEmail || !parentInfo.childName || !parentInfo.napTime) {
     alert("Please fill in all the fields.");
     return;
   }
 
-  // Hide form, show calendar
   infoForm.style.display = "none";
   calendarSection.style.display = "block";
 
@@ -178,16 +177,20 @@ submitBtn.addEventListener("click", () => {
     return;
   }
 
-  // Store info in localStorage to pass to confirmation.html if needed
+  const visitTimes = selectedDates.map(date => {
+    const nap = new Date(`${date.toDateString()} ${parentInfo.napTime}`);
+    nap.setMinutes(nap.getMinutes() - 135); // Subtract 2 hours 15 minutes
+    return nap.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  });
+
   localStorage.setItem('parentInfo', JSON.stringify(parentInfo));
   localStorage.setItem('selectedDates', JSON.stringify(selectedDates.map(d => d.toISOString())));
+  localStorage.setItem('visitTimes', JSON.stringify(visitTimes));
 
-  // Redirect to confirmation page
   window.location.href = "confirmation.html";
 });
 
-function setup(){
-  // Initial UI state
+function setup() {
   infoForm.style.display = "block";
   calendarSection.style.display = "none";
   submitBtn.disabled = true;
