@@ -26,7 +26,6 @@ label {
   margin-bottom: 5px;
 }
 
-/* Inputs styling */
 input[type="text"],
 input[type="email"],
 input[type="date"],
@@ -37,7 +36,6 @@ input[type="hidden"] {
   box-sizing: border-box;
 }
 
-/* Submit button */
 input[type="submit"] {
   background-color: #4CAF50;
   color: white;
@@ -48,13 +46,12 @@ input[type="submit"] {
   font-size: 16px;
 }
 
-/* Message display */
 #message {
   margin-top: 20px;
   font-weight: bold;
 }
 
-/* Calendar container grid */
+/* Calendar styles */
 #calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -101,4 +98,12 @@ input[type="submit"] {
   color: #888 !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
+}
+
+/* Hover effect for clickable days */
+.day:not(.disabled):hover {
+  background-color: #6495ED; /* CornflowerBlue */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
