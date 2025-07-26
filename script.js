@@ -2,12 +2,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("appointment-form");
   const calendarEl = document.getElementById('calendar');
   const hiddenDateInput = document.getElementById('date');
+  const clearBtn = document.getElementById('clear-selection');
 
-  // Calendar parameters
+  // Calendar range and month setup
   const rangeStart = new Date(2025, 6, 10); // July 10, 2025
   const rangeEnd = new Date(2025, 6, 20);   // July 20, 2025
   const year = 2025;
-  const month = 6; // July
+  const month = 6; // July (0-indexed)
 
   let selectedDate = null;
 
@@ -28,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function renderCalendar() {
     calendarEl.innerHTML = '';
 
-    // Weekday headings
+    // Weekday headers
     const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     weekdays.forEach(day => {
       const wd = document.createElement('div');
@@ -42,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const lastDay = new Date(year, month + 1, 0);
     const startDayOfWeek = firstDay.getDay();
 
+    // Empty cells for alignment
     for (let i = 0; i < startDayOfWeek; i++) {
       calendarEl.appendChild(document.createElement('div'));
     }
@@ -51,18 +53,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const dayEl = document.createElement('div');
       dayEl.textContent = dayNum;
       dayEl.classList.add('day');
-      dayEl.style.textAlign = 'center';
-      dayEl.style.padding = '8px';
-      dayEl.style.border = '1px solid #ccc';
-      dayEl.style.borderRadius = '4px';
-      dayEl.style.cursor = 'pointer';
-      dayEl.style.userSelect = 'none';
 
+      // Blue range highlight
       if (inRange(dayDate, rangeStart, rangeEnd)) {
-        dayEl.style.backgroundColor = '#a3c4f3';
-        dayEl.style.color = 'white';
+        dayEl.classList.add('range');
       }
 
+      // Disable days logic when selectedDate exists
       if (selectedDate) {
         const oneWeekBefore = new Date(selectedDate);
         oneWeekBefore.setDate(oneWeekBefore.getDate() - 7);
@@ -74,20 +71,17 @@ document.addEventListener("DOMContentLoaded", function () {
           isSameDay(dayDate, oneWeekBefore) ||
           isSameDay(dayDate, oneWeekAfter)
         )) {
-          dayEl.style.backgroundColor = '#ddd';
-          dayEl.style.color = '#888';
-          dayEl.style.cursor = 'not-allowed';
-          dayEl.style.pointerEvents = 'none';
+          dayEl.classList.add('disabled');
         }
       }
 
+      // Selected day styling
       if (selectedDate && isSameDay(dayDate, selectedDate)) {
-        dayEl.style.backgroundColor = '#004aad';
-        dayEl.style.color = 'white';
-        dayEl.style.fontWeight = 'bold';
+        dayEl.classList.add('selected');
       }
 
-      if (!dayEl.style.pointerEvents || dayEl.style.pointerEvents !== 'none') {
+      // Clickable if not disabled
+      if (!dayEl.classList.contains('disabled')) {
         dayEl.addEventListener('click', () => {
           selectedDate = dayDate;
           hiddenDateInput.value = formatDate(selectedDate);
@@ -101,13 +95,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   renderCalendar();
 
+  // Clear selection button handler
+  clearBtn.addEventListener('click', () => {
+    selectedDate = null;
+    hiddenDateInput.value = '';
+    renderCalendar();
+  });
+
   // Form submission handler
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
-    const date = hiddenDateInput.value; // get from hidden input updated by calendar
+    const date = hiddenDateInput.value;
     const time = document.getElementById("time").value;
 
     if (!date || !time) {
@@ -129,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       form.reset();
-      // Reset calendar selection and hidden input as well
+      // Reset calendar selection
       selectedDate = null;
       hiddenDateInput.value = '';
       renderCalendar();
