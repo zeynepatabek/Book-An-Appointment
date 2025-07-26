@@ -1,139 +1,103 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("appointment-form");
-  const calendarEl = document.getElementById('calendar');
-  const hiddenDateInput = document.getElementById('date');
-  const clearBtn = document.getElementById('clear-selection');
+// script.js
 
-  // Calendar range and month setup
-  const rangeStart = new Date(2025, 6, 10); // July 10, 2025
-  const rangeEnd = new Date(2025, 6, 20);   // July 20, 2025
-  const year = 2025;
-  const month = 6; // July (0-indexed)
+document.addEventListener("DOMContentLoaded", function () {
+  const infoForm = document.getElementById("info-form");
+  const schedulingSection = document.getElementById("scheduling-section");
+  const appointmentForm = document.getElementById("appointment-form");
+  const calendarDiv = document.getElementById("calendar");
+  const visitMsg = document.getElementById("visit-messages");
 
   let selectedDate = null;
+  let secondDate = null;
+  let napTime = null;
 
-  function formatDate(date) {
-    return date.toISOString().split('T')[0];
-  }
-
-  function isSameDay(d1, d2) {
-    return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate();
-  }
-
-  function inRange(date, start, end) {
-    return date >= start && date <= end;
-  }
-
-  function renderCalendar() {
-    calendarEl.innerHTML = '';
-
-    // Weekday headers
-    const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    weekdays.forEach(day => {
-      const wd = document.createElement('div');
-      wd.textContent = day;
-      wd.style.fontWeight = 'bold';
-      wd.style.textAlign = 'center';
-      calendarEl.appendChild(wd);
-    });
-
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startDayOfWeek = firstDay.getDay();
-
-    // Empty cells for alignment
-    for (let i = 0; i < startDayOfWeek; i++) {
-      calendarEl.appendChild(document.createElement('div'));
-    }
-
-    for (let dayNum = 1; dayNum <= lastDay.getDate(); dayNum++) {
-      const dayDate = new Date(year, month, dayNum);
-      const dayEl = document.createElement('div');
-      dayEl.textContent = dayNum;
-      dayEl.classList.add('day');
-
-      // Blue range highlight
-      if (inRange(dayDate, rangeStart, rangeEnd)) {
-        dayEl.classList.add('range');
-      }
-
-      // Disable days logic when selectedDate exists
-      if (selectedDate) {
-        const oneWeekBefore = new Date(selectedDate);
-        oneWeekBefore.setDate(oneWeekBefore.getDate() - 7);
-        const oneWeekAfter = new Date(selectedDate);
-        oneWeekAfter.setDate(oneWeekAfter.getDate() + 7);
-
-        if (!(
-          isSameDay(dayDate, selectedDate) ||
-          isSameDay(dayDate, oneWeekBefore) ||
-          isSameDay(dayDate, oneWeekAfter)
-        )) {
-          dayEl.classList.add('disabled');
-        }
-      }
-
-      // Selected day styling
-      if (selectedDate && isSameDay(dayDate, selectedDate)) {
-        dayEl.classList.add('selected');
-      }
-
-      // Clickable if not disabled
-      if (!dayEl.classList.contains('disabled')) {
-        dayEl.addEventListener('click', () => {
-          selectedDate = dayDate;
-          hiddenDateInput.value = formatDate(selectedDate);
-          renderCalendar();
-        });
-      }
-
-      calendarEl.appendChild(dayEl);
-    }
-  }
-
-  renderCalendar();
-
-  // Clear selection button handler
-  clearBtn.addEventListener('click', () => {
-    selectedDate = null;
-    hiddenDateInput.value = '';
+  // Step 1: Capture info form
+  infoForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    napTime = document.getElementById("naptime").value;
+    if (!napTime) return alert("Please enter a nap time.");
+    schedulingSection.style.display = "block";
+    infoForm.style.display = "none";
     renderCalendar();
   });
 
-  // Form submission handler
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const date = hiddenDateInput.value;
-    const time = document.getElementById("time").value;
-
-    if (!date || !time) {
-      alert("Please select both a date and time.");
-      return;
+  // Render calendar for current and next month
+  function renderCalendar() {
+    const today = new Date();
+    const container = document.createElement("div");
+    container.className = "calendar-grid";
+    for (let i = 0; i < 60; i++) {
+      const date = new Date();
+      date.setDate(today.getDate() + i);
+      const day = document.createElement("div");
+      day.className = "calendar-day";
+      day.textContent = date.getDate();
+      day.dataset.date = date.toISOString().split("T")[0];
+      day.addEventListener("click", () => handleDateClick(date, day));
+      container.appendChild(day);
     }
+    calendarDiv.innerHTML = "";
+    calendarDiv.appendChild(container);
+  }
 
-    const datetime = `${date}T${time}`;
+  // Handle date selection
+  function handleDateClick(dateObj, element) {
+    const allDays = document.querySelectorAll(".calendar-day");
+    allDays.forEach((el) => el.classList.remove("selected", "selectable"));
 
-    setTimeout(function () {
-      const messageDiv = document.getElementById("message");
-      messageDiv.innerHTML = `Thanks, ${name}! Your appointment is booked for ${date} at ${time}.`;
-      messageDiv.style.color = "green";
+    if (!selectedDate) {
+      selectedDate = dateObj;
+      element.classList.add("selected");
+      visitMsg.innerText = `Your Visit 1 date is ${selectedDate.toDateString()}`;
+      document.getElementById("visit1").value = selectedDate.toISOString().split("T")[0];
 
-      console.log("Appointment info:", {
-        name,
-        email,
-        datetime
+      // Allow second visit only one week apart
+      allDays.forEach((el) => {
+        const thisDate = new Date(el.dataset.date);
+        const diffDays = Math.abs((thisDate - selectedDate) / (1000 * 60 * 60 * 24));
+        if (diffDays === 7) {
+          el.classList.add("selectable");
+          el.addEventListener("click", () => {
+            secondDate = thisDate;
+            el.classList.add("selected");
+            visitMsg.innerText += `\nYour Visit 2 date is ${secondDate.toDateString()}`;
+            document.getElementById("visit2").value = secondDate.toISOString().split("T")[0];
+
+            // Calculate times
+            const [napHour, napMin] = napTime.split(":").map(Number);
+            const visitHour = (napHour + 24 - 2) % 24;
+            const timeStr = `${visitHour.toString().padStart(2, "0")}:${napMin.toString().padStart(2, "0")}`;
+
+            document.getElementById("final-visit1").value = selectedDate.toISOString().split("T")[0];
+            document.getElementById("final-visit2").value = secondDate.toISOString().split("T")[0];
+            document.getElementById("final-time1").value = timeStr;
+            document.getElementById("final-time2").value = timeStr;
+            document.getElementById("appointment-form").submit();
+          });
+        }
       });
+    }
+  }
 
-      form.reset();
-      // Reset calendar selection
-      selectedDate = null;
-      hiddenDateInput.value = '';
-      renderCalendar();
-    }, 1000);
+  document.getElementById("clear-selection").addEventListener("click", () => {
+    selectedDate = null;
+    secondDate = null;
+    renderCalendar();
+    visitMsg.innerText = "";
+  });
+
+  // Final submission handler (for display only)
+  appointmentForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const name = document.getElementById("parent-name").value;
+    const email = document.getElementById("parent-email").value;
+    const visit1 = document.getElementById("final-visit1").value;
+    const visit2 = document.getElementById("final-visit2").value;
+    const time = document.getElementById("final-time1").value;
+
+    document.getElementById("message").innerHTML =
+      `Thanks, ${name}!<br>Your appointments are confirmed for:<br>` +
+      `Visit 1: ${visit1} at ${time}<br>` +
+      `Visit 2: ${visit2} at ${time}`;
   });
 });
