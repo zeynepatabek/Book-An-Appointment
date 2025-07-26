@@ -1,17 +1,17 @@
 let parentInfo = {};
 let availableDates = [];
 
-// Fetch available dates from txt file and initialize calendar after fetch
+// Fetch available dates from plain text file (one date per line)
 fetch('available_dates.txt')
   .then(response => response.text())
   .then(text => {
     availableDates = text
-      .split('\n')              // split by newlines
-      .map(line => line.trim()) // trim whitespace
-      .filter(line => line)     // remove empty lines
+      .split('\n')              // Split lines
+      .map(line => line.trim()) // Trim spaces
+      .filter(line => line)     // Remove empty lines
       .map(d => {
         const dt = new Date(d);
-        dt.setHours(0,0,0,0);
+        dt.setHours(0,0,0,0);   // Normalize time part
         return dt;
       });
     setup();
