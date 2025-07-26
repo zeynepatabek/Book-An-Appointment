@@ -1,6 +1,6 @@
 let parentInfo = {};
 let availableDates = [];
-
+ 
 // Fetch available dates from plain text file (one date per line)
 fetch('available_dates.txt')
   .then(response => response.text())
