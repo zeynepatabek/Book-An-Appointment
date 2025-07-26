@@ -1,54 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Visit Scheduler</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visit Scheduler</title>
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
   <div class="container">
-    <!-- Parent & Child Info Form -->
+
+    <!-- STEP 1: Parent & Child Info -->
     <form id="info-form">
-      <h2>Parent Information</h2>
-      <label for="parent-name">Parent Name:</label>
-      <input type="text" id="parent-name" required />
+      <h1>Parent & Child Information</h1>
+      <label for="parent-name">Parent's Name:</label>
+      <input type="text" id="parent-name" name="parent-name" required />
 
-      <label for="parent-email">Parent Email:</label>
-      <input type="email" id="parent-email" required />
+      <label for="parent-email">Parent's Email:</label>
+      <input type="email" id="parent-email" name="parent-email" required />
 
-      <label for="child-name">Child Name:</label>
-      <input type="text" id="child-name" required />
+      <label for="child-name">Child's Name:</label>
+      <input type="text" id="child-name" name="child-name" required />
 
-      <label for="nap-time">Child's Nap Time:</label>
-      <input type="time" id="nap-time" required />
+      <label for="nap-time">Child's Typical Nap Time:</label>
+      <input type="time" id="nap-time" name="nap-time" required />
 
-      <button type="submit">Next</button>
+      <button type="submit">Proceed to Schedule Visits</button>
     </form>
 
-    <!-- Scheduling Section (Hidden Initially) -->
-    <section id="calendar-section" style="display: none;">
-      <h2>Select Visit Dates</h2>
-      <p>Please select two visit dates that are 6–8 days apart. Only available dates will be highlighted.</p>
-
+    <!-- STEP 2: Calendar Selection -->
+    <section id="calendar-section" style="display:none;">
+      <h2>Select Two Visit Dates</h2>
+      <p style="text-align:center;">
+        Please select two visit dates exactly 6–8 days apart.<br/>
+        First visit date in <strong>blue</strong>, second visit date options in <strong>light blue</strong>.
+      </p>
       <div class="calendar-wrapper">
         <div id="calendar-month-1" class="calendar"></div>
         <div id="calendar-month-2" class="calendar"></div>
       </div>
-
-      <div id="selected-dates"></div>
-      <div id="message"></div>
+      <div id="selected-dates"><p>No dates selected yet.</p></div>
       <button id="clear-selection">Clear Selection</button>
-      <!-- Submit Schedule button will be appended dynamically by JS -->
+      <button id="submit-schedule" disabled>Submit Schedule</button>
     </section>
 
-    <!-- Confirmation Section (Hidden Initially) -->
-    <section id="confirmation-section" style="display: none;">
-      <h2>Submission Received</h2>
-      <p>Your requested schedule times have been recorded. A member of our staff will reach out with further information. Thank you!</p>
-    </section>
   </div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
