@@ -1,171 +1,199 @@
-/* Body and container */
+/* Overall body and container */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #8B0000; /* Burgundy */
-  padding: 40px 20px;
-  color: #222;
+  font-family: 'Tahoma', Verdana, sans-serif;
+  padding: 20px;
+  color: #fff;
   margin: 0;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
+
 .container {
-  max-width: 720px;
-  width: 100%;
   background: white;
+  color: black;
   padding: 30px 40px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  box-sizing: border-box;
-}
-h1, h2 {
-  text-align: center;
-  font-weight: 700;
-  color: #4B0000;
-  margin-bottom: 25px;
-  letter-spacing: 1.2px;
-}
-label {
-  display: block;
-  margin-top: 20px;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #4B0000;
-}
-input[type="text"],
-input[type="email"],
-input[type="time"] {
-  width: 100%;
-  padding: 12px 15px;
-  margin-top: 8px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-}
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="time"]:focus {
-  border-color: #8B0000;
-  outline: none;
-  box-shadow: 0 0 8px rgba(139, 0, 0, 0.5);
-}
-button {
-  margin-top: 30px;
-  background-color: #8B0000;
-  border: none;
-  padding: 14px;
-  color: white;
-  font-size: 1.15rem;
-  cursor: pointer;
-  width: 100%;
   border-radius: 10px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  box-shadow: 0 6px 12px rgba(139, 0, 0, 0.5);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-button:hover:not(:disabled) {
-  background-color: #5a0000;
-  box-shadow: 0 8px 16px rgba(90, 0, 0, 0.7);
-}
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  box-shadow: none;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
 
-/* Calendar styles */
+/* Headings */
+h1, h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #8B0000;
+}
+
+/* Forms */
+form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #8B0000;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="time"],
+form button {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 20px;
+  border: 2px solid #8B0000;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+form button {
+  background-color: #8B0000;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background-color: #660000;
+}
+
+/* Calendar container */
 .calendar-wrapper {
   display: flex;
   justify-content: space-between;
-  gap: 30px;
-  margin-top: 30px;
-}
-.calendar {
-  flex: 1;
-  user-select: none;
-}
-table {
-  border-collapse: collapse;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-caption {
-  font-weight: 700;
-  font-size: 1.25rem;
-  padding: 10px 0;
-  background-color: #f9f1f1;
-  color: #4B0000;
-  border-bottom: 2px solid #8B0000;
-}
-th, td {
-  width: 14.28%;
-  height: 48px;
-  text-align: center;
-  vertical-align: middle;
-  border: 1px solid #ddd;
-  cursor: default;
-  user-select: none;
-}
-th {
-  background-color: #f4f0f0;
-  color: #5a0000;
-  font-weight: 700;
-}
-td.available {
-  background-color: #007BFF;
-  color: white;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
-}
-td.available:hover {
-  background-color: #0056b3;
-}
-td.light-blue {
-  background-color: #66b3ff;
-  color: white;
-  cursor: pointer;
-  border-radius: 8px;
-}
-td.light-blue:hover {
-  background-color: #3399ff;
-}
-td.selected {
-  background-color: #004085;
-  color: white;
-  font-weight: 700;
-  cursor: default;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 64, 133, 0.9);
-}
-td.greyed {
-  background-color: #e0e0e0;
-  color: #999;
-  cursor: not-allowed;
-  border-radius: 8px;
-}
-#selected-dates p {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-top: 20px;
-  color: #4B0000;
-  text-align: center;
-}
-#message {
-  margin-top: 20px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #4B0000;
-  min-height: 24px;
-  text-align: center;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
-/* Hide sections by default */
-#calendar-section {
-  display: none;
+/* Each calendar */
+.calendar {
+  flex: 1;
+  background: #fefefe;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+/* Calendar table */
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  user-select: none;
+}
+
+.calendar-table caption {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #8B0000;
+}
+
+.calendar-table th,
+.calendar-table td {
+  width: 14.28%; /* 7 columns */
+  text-align: center;
+  padding: 8px 0;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Weekday header */
+.calendar-table th {
+  background-color: #8B0000;
+  color: white;
+  cursor: default;
+}
+
+/* Dates styles */
+.available {
+  background-color: #007bff;
+  color: white;
+}
+
+.available:hover {
+  background-color: #0056b3;
+}
+
+.greyed {
+  color: #bbb;
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.selected {
+  background-color: #003d99;
+  color: white;
+  font-weight: bold;
+}
+
+.light-blue {
+  background-color: #99ccff;
+  color: #003366;
+}
+
+.selected:hover,
+.light-blue:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+/* Disabled dates */
+.greyed:hover {
+  background-color: #f0f0f0;
+}
+
+/* Selected dates info */
+#selected-dates {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-align: center;
+  color: #8B0000;
+}
+
+/* Buttons below calendar */
+#clear-selection,
+#submit-schedule {
+  background-color: #8B0000;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin: 10px 5px;
+  font-weight: 600;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+#clear-selection:hover,
+#submit-schedule:hover {
+  background-color: #660000;
+}
+
+/* Hide submit button initially */
+#submit-schedule:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Confirmation section */
+#confirmation-section {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #8B0000;
+  margin-top: 30px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .calendar-wrapper {
+    flex-direction: column;
+  }
 }
