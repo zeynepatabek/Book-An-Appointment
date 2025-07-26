@@ -49,20 +49,6 @@ input[type="submit"] {
   margin-top: 20px;
   font-weight: bold;
 }
-/* Background logo image fixed to bottom center */
-body::after {
-  content: "";
-  position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  height: auto;
-  background: url("somneurolab-logo.png") no-repeat center / contain;
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: -1;
-}
 
 body::after {
   content: "";
