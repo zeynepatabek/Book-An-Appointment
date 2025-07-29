@@ -1,16 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Visit Scheduler - Confirmation</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <title>Confirmation</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h2>Submission Received</h2>
-    <p>Your requested schedule times have been recorded. A member of our staff will reach out with further information via email. Thank you!</p>
+    <h1>Schedule Submitted</h1>
+    <p id="confirmation-text"></p>
   </div>
+
+  <script>
+    const info = JSON.parse(localStorage.getItem('parentInfo'));
+    const selected = JSON.parse(localStorage.getItem('selectedDates')).map(d => new Date(d));
+    
+    const visitTimes = selected.map(date => {
+      const [hour, minute] = info.napTime.split(':').map(Number);
+      const napStart = new Date(date);
+      napStart.setHours(hour);
+      napStart.setMinutes(minute);
+
+      const visitStart = new Date(napStart.getTime() - 2 * 60 * 60 * 1000 - 15 * 60 * 1000); // nap - 2h15m
+      return `${date.toDateString()} at <span class="highlight">${visitStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+    });
+
+    document.getElementById('confirmation-text').innerHTML = `
+      Your requested schedule times have been recorded.<br><br>
+      Visit 1: ${visitTimes[0]}<br>
+      Visit 2: ${visitTimes[1]}<br><br>
+      A member of our staff will reach out with further information. Thank you!
+    `;
+  </script>
 </body>
 </html>
- 
