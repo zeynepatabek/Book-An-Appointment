@@ -14,7 +14,7 @@ fetch('available_dates.txt')
         return dt;
       });
     setup();
-  });
+  }); 
 
 const calendarMonth1 = document.getElementById("calendar-month-1");
 const calendarMonth2 = document.getElementById("calendar-month-2");
