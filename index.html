@@ -1,130 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visit Scheduler</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Schedule a Visit</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <form id="info-form">
-    <h2>Parent Information</h2>
-    <label for="parent-name">Parent Name:</label>
-    <input type="text" id="parent-name" required>
-    <label for="parent-email">Parent Email:</label>
-    <input type="email" id="parent-email" required>
-    <label for="child-name">Child Name:</label>
-    <input type="text" id="child-name" required>
-    <label for="nap-time">Child's Nap Time:</label>
-    <input type="time" id="nap-time" required>
-    <button type="submit">Next</button>
-  </form>
+  <div class="container">
+    <h1>Schedule a Visit</h1>
+    <form id="info-form">
+      <label for="parent-name">Parent Name:</label>
+      <input type="text" id="parent-name" required>
 
-  <section id="calendar-section" style="display: none;">
-    <h2>Select Visit Dates</h2>
-    <p>Please select two visit dates that are 6–8 days apart. Only available dates will be highlighted.</p>
-    <div class="calendar-wrapper">
-      <div id="calendar-month-1" class="calendar"></div>
-      <div id="calendar-month-2" class="calendar"></div>
-    </div>
-    <div id="selected-dates">
-      <div id="first-visit-time" style="display:none;">
-        <label for="time-1">Select Time for First Visit:</label>
-        <input type="time" id="time-1" required>
+      <label for="parent-email">Parent Email:</label>
+      <input type="email" id="parent-email" required>
+
+      <label for="child-name">Child Name:</label>
+      <input type="text" id="child-name" required>
+
+      <label for="nap-time">Child's Nap Start Time:</label>
+      <input type="time" id="nap-time" required>
+
+      <button type="submit">Next</button>
+    </form>
+
+    <section id="calendar-section" style="display:none;">
+      <h2>Select Two Visit Dates (6–8 Days Apart)</h2>
+      <div class="calendar-container">
+        <div id="calendar-month-1"></div>
+        <div id="calendar-month-2"></div>
       </div>
-      <div id="second-visit-time" style="display:none;">
-        <label for="time-2">Select Time for Second Visit:</label>
-        <input type="time" id="time-2" required>
+      <div id="selected-dates"></div>
+      <div class="buttons">
+        <button id="clear-selection">Clear</button>
+        <button id="submit-schedule" disabled>Submit</button>
       </div>
-    </div>
-    <div id="message"></div>
-    <button id="clear-selection">Clear Selection</button>
-  </section>
+    </section>
+  </div>
 
-  <section id="confirmation-section" style="display: none;">
-    <h2>Submission Received</h2>
-    <p>Your requested schedule times have been recorded. A member of our staff will reach out with further information. Thank you!</p>
-  </section>
-
-  <script>
-    let availableDates = [];
-    let selectedDates = [];
-
-    fetch('available_dates.json')
-      .then(response => response.json())
-      .then(data => {
-        availableDates = data.dates.map(dateStr => {
-          const date = new Date(dateStr);
-          date.setHours(0, 0, 0, 0);
-          return date;
-        });
-        initCalendars();
-      });
-
-    function initCalendars() {
-      const calendar1 = document.getElementById("calendar-month-1");
-      const calendar2 = document.getElementById("calendar-month-2");
-      const today = new Date();
-      const month1 = new Date(today.getFullYear(), today.getMonth(), 1);
-      const month2 = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-
-      calendar1.innerHTML = generateCalendar(month1);
-      calendar2.innerHTML = generateCalendar(month2);
-    }
-
-    function generateCalendar(startDate) {
-      const year = startDate.getFullYear();
-      const month = startDate.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      let html = `<div class="month-label">${firstDay.toLocaleString('default', { month: 'long' })} ${year}</div><table><tr>`;
-
-      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      days.forEach(d => html += `<th>${d}</th>`);
-      html += "</tr><tr>";
-
-      for (let i = 0; i < firstDay.getDay(); i++) {
-        html += "<td></td>";
-      }
-
-      for (let d = 1; d <= lastDay.getDate(); d++) {
-        const thisDate = new Date(year, month, d);
-        thisDate.setHours(0, 0, 0, 0);
-        const available = availableDates.some(avDate => avDate.getTime() === thisDate.getTime());
-
-        if (available) {
-          html += `<td class="available" data-date="${thisDate.toISOString()}">${d}</td>`;
-        } else {
-          html += `<td class="unavailable">${d}</td>`;
-        }
-
-        if ((firstDay.getDay() + d) % 7 === 0) html += "</tr><tr>";
-      }
-
-      html += "</tr></table>";
-      return html;
-    }
-
-    document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('available')) {
-        const date = new Date(e.target.dataset.date);
-        if (selectedDates.length === 0) {
-          selectedDates.push(date);
-          e.target.classList.add('selected');
-          document.getElementById('first-visit-time').style.display = 'block';
-        } else if (selectedDates.length === 1) {
-          const diffDays = Math.abs((date - selectedDates[0]) / (1000 * 60 * 60 * 24));
-          if (diffDays >= 6 && diffDays <= 8) {
-            selectedDates.push(date);
-            e.target.classList.add('selected');
-            document.getElementById('second-visit-time').style.display = 'block';
-            document.getElementById('message').innerText = 'You have selected two visits.';
-          } else {
-            document.getElementById('message').innerText = 'Second date must be 6–8 days apart.';
-          }
-        }
-      }
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
