@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 
 app = Flask(__name__)
 
-SOMNEURO_EMAIL = "somneurolab@example.com"
+SOMNEURO_EMAIL = "somneuro-dev@umass.edu"
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SMTP_USER = "your_email@gmail.com"
