@@ -1,3 +1,5 @@
+// script.js
+
 let parentInfo = {};
 let availableDates = [];
 
@@ -14,7 +16,7 @@ fetch('available_dates.txt')
         return dt;
       });
     setup();
-  }); 
+  });
 
 const calendarMonth1 = document.getElementById("calendar-month-1");
 const calendarMonth2 = document.getElementById("calendar-month-2");
@@ -165,9 +167,30 @@ submitBtn.addEventListener("click", () => {
     return;
   }
 
-  localStorage.setItem('parentInfo', JSON.stringify(parentInfo));
-  localStorage.setItem('selectedDates', JSON.stringify(selectedDates.map(d => d.toISOString())));
-  window.location.href = "confirmation.html";
+  const appointmentData = {
+    parentName: parentInfo.parentName,
+    parentEmail: parentInfo.parentEmail,
+    childName: parentInfo.childName,
+    napTime: parentInfo.napTime,
+    selectedDates: selectedDates.map(d => d.toDateString())
+  };
+
+  // Send data to Flask backend
+  fetch("/send-email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(appointmentData)
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert("Your appointment request has been sent to Somneuro Lab!");
+        window.location.href = "confirmation.html";
+      } else {
+        alert("There was an error sending your request: " + data.error);
+      }
+    })
+    .catch(err => console.error("Error sending email:", err));
 });
 
 function setup() {
